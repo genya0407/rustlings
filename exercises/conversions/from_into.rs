@@ -33,10 +33,33 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of Person
 // Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
+impl Person {
+    fn from_internal(s: &str) -> Result<Person, ()> {
+        let mut split_strings = s.split(',');
+        let name = split_strings.next().ok_or(())?;
+        if name.len() == 0 {
+            return Err(());
+        }
+        let age = split_strings
+            .next()
+            .and_then(|age_str| age_str.parse::<usize>().ok())
+            .ok_or(())?;
+        if split_strings.next().is_some() {
+            return Err(());
+        }
+        Ok(Person {
+            name: name.into(),
+            age: age,
+        })
+    }
+}
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        match Person::from_internal(s) {
+            Ok(person) => person,
+            Err(_) => Person::default(),
+        }
     }
 }
 
